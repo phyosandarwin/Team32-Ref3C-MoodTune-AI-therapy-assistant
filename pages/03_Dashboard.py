@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
 import datetime
-from streamlit_card import card
+
 st.set_page_config(layout="centered", page_icon="🥰📊", page_title="MoodTune Dashboard")
+st.markdown('# :blue[MoodTune] Dashboard 🥰')
 st.markdown("""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500&display=swap');
         html, body, [class*="css"]  {
-			font-family: 'Poppins', sans-serif;
+            font-weight:600;
 		}
         h1{
             text-align: center;
@@ -17,7 +17,7 @@ st.markdown("""
         }
         </style>
         """, unsafe_allow_html=True)
-st.markdown('# :blue[MoodTune] Dashboard 🥰')
+
 # Load your DataFrame from the CSV file
 df = pd.read_csv('journal_entries.csv', delimiter=',')
 
@@ -70,5 +70,3 @@ for index, row in filtered_entries.iterrows():
         st.markdown(f"##### **:blue[{column1}]**")
         st.markdown(f"**Emotion:** {column2}")
         st.markdown(f"**What happened:** {column3}")
-    
-

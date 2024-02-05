@@ -1,8 +1,6 @@
 import streamlit as st
-import datetime
 import random
 import csv
-import pandas as pd
 from openai import OpenAI
 from googlesearch import search
 from googleapiclient.discovery import build
@@ -11,9 +9,8 @@ st.set_page_config(page_title='MoodTune Journal', page_icon='🥰', layout="wide
 
 st.markdown("""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500&display=swap');
         html, body, [class*="css"]  {
-			font-family: 'Poppins', sans-serif;
+			font-weight:600;
 		}
         h1{
             text-align: center;
