@@ -34,7 +34,7 @@ def speech_to_text_with_auto_stop():
     with sr.Microphone() as mic:
 
         # Adjust for ambient noise
-        recognizer.adjust_for_ambient_noise(mic, duration=1)
+        recognizer.adjust_for_ambient_noise(mic, duration=0.5)
 
         # Start listening with a timeout for automatic stop
         audio = recognizer.listen(mic, timeout=4)  # Set a timeout (e.g., 30 seconds)

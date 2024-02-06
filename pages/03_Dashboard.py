@@ -57,16 +57,32 @@ end_date = pd.Timestamp(end_date)
 filtered_entries = filter_entries(start_date, end_date)
 filtered_entries['Date'] = filtered_entries['Date'].dt.date
 
-# Iterate over DataFrame rows only once
-for index, row in filtered_entries.iterrows():
-    # Access each column value
-    column1 = row["Date"]
-    column2 = row['Emotion']
-    column3 = row['Reason for emotion']
-    
-    
-    # Create a box for each row
-    with st.container(height = 150, border=True):
-        st.markdown(f"##### **:blue[{column1}]**")
-        st.markdown(f"**Emotion:** {column2}")
-        st.markdown(f"**What happened:** {column3}")
+try:
+    # Check if the start date is after the end date
+    if start_date > end_date:
+        st.markdown("**Incorrect date interval entered. Start date cannot be after end date.**", unsafe_allow_html=True)
+    else:
+        filtered_entries = filter_entries(start_date, end_date)
+        filtered_entries['Date'] = filtered_entries['Date'].dt.date
+
+        # Display entries if found
+        if not filtered_entries.empty:
+            # Iterate over DataFrame rows only once
+            for index, row in filtered_entries.iterrows():
+                # Access each column value
+                column1 = row["Date"]
+                column2 = row['Emotion']
+                column3 = row['Reason for emotion']
+
+                # Create a box for each row
+                with st.container(height=150, border=True):
+                    st.markdown(f"##### **:blue[{column1}]**")
+                    st.markdown(f"**Emotion:** {column2}")
+                    st.markdown(f"**What happened:** {column3}")
+
+        else:
+            st.markdown("**No entries found for the selected date range.**", unsafe_allow_html=True)
+
+except Exception as e:
+    # Handle any other exceptions
+    st.markdown(f"**Error:** {str(e)}", unsafe_allow_html=True)
