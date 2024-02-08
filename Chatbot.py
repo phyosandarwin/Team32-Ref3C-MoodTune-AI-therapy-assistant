@@ -30,7 +30,7 @@ st.subheader(body='', divider='rainbow')
 def speech_to_text_with_auto_stop():
     text = ""
     recognizer = sr.Recognizer()
-    with sr.Microphone() as mic:
+    with sr.Microphone(device_index=1) as mic:
 
         # Adjust for ambient noise
         recognizer.adjust_for_ambient_noise(mic, duration=0.5)
