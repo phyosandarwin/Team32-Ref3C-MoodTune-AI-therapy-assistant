@@ -31,7 +31,7 @@ st.markdown('# :blue[MoodTune] Chatbot 🥰')
 st.subheader(body='', divider='rainbow')
 
 # Function to convert speech to text with automatic stop
-def speech_to_text(audio_data, temp_filename):
+def speech_to_text(audio_data, temp_filename=None):
     r = sr.Recognizer()
     try:
         text = r.recognize_google(audio_data)
