@@ -1,8 +1,6 @@
 import streamlit as st
-import pyaudio
 import speech_recognition as sr
 from openai import OpenAI
-
 client = OpenAI(api_key=st.secrets['openai']["openai_api_key"])
 st.set_page_config(page_title='MoodTune Chatbot', page_icon='🥰')
 st.markdown("""
