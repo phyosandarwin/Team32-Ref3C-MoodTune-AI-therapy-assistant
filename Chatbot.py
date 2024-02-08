@@ -1,4 +1,5 @@
 import streamlit as st
+import pyaudio
 import speech_recognition as sr
 from openai import OpenAI
 
