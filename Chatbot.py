@@ -1,6 +1,10 @@
 import streamlit as st
 import speech_recognition as sr
+from st_audiorec import st_audiorec
 from openai import OpenAI
+import tempfile
+import os
+
 client = OpenAI(api_key=st.secrets['openai']["openai_api_key"])
 st.set_page_config(page_title='MoodTune Chatbot', page_icon='🥰')
 st.markdown("""
@@ -27,39 +31,38 @@ st.markdown('# :blue[MoodTune] Chatbot 🥰')
 st.subheader(body='', divider='rainbow')
 
 # Function to convert speech to text with automatic stop
-def speech_to_text_with_auto_stop():
-    text = ""
-    recognizer = sr.Recognizer()
-    with sr.Microphone(device_index=1) as mic:
-
-        # Adjust for ambient noise
-        recognizer.adjust_for_ambient_noise(mic, duration=0.5)
-
-        # Start listening with a timeout for automatic stop
-        audio = recognizer.listen(mic, timeout=4)  # Set a timeout (e.g., 30 seconds)
-
+def speech_to_text(audio_data, temp_filename):
+    r = sr.Recognizer()
     try:
-        text = recognizer.recognize_google(audio)
-        #st.write("You said:", text)
+        text = r.recognize_google(audio_data)
+        return text
     except sr.UnknownValueError:
         st.write("Could not understand audio")
     except sr.RequestError as e:
         st.write(f"Could not request results; {e}")
-    return text
+    finally:
+        # Clean up temporary file
+        if temp_filename:
+            print(f"Cleaning up temporary file: {temp_filename}")
+            os.unlink(temp_filename)
 
 # Function to start recording with automatic stop
-def start_recording_auto_stop():
-    st.session_state.recording_started = True
-    # Process speech to text with automatic stop and store the result in the session state
-    st.session_state['text'] = speech_to_text_with_auto_stop()
-    # Automatic stop recording by setting the flag to False
-    st.session_state.recording_started = False
+# Function to start recording audio
+def start_recording_audio():
+    wav_audio_data = st_audiorec()
+    if wav_audio_data:
+        global temp_filename
+        # Write audio data to a temporary file
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
+            temp_file.write(wav_audio_data)
+            temp_filename = temp_file.name
+        r = sr.Recognizer()
+        with sr.AudioFile(temp_filename) as source:
+            # Record the audio file
+            audio_data = r.record(source)
+        st.session_state['audio_data'] = audio_data
 
-# Function to stop recording
-def stop_recording():
-    # Here, you might want to add any clean-up or stop logic if necessary
-    st.session_state.recording_started = False
-
+#################################################################################################
 # Radio button to select input mode
 input_mode = st.sidebar.radio("Select Input Mode", ["Text", "Voice"], key="input_mode")
 
@@ -67,11 +70,7 @@ if "openai_model" not in st.session_state:
     st.session_state["openai_model"] = "gpt-3.5-turbo"
 
 if input_mode == "Voice":
-    if 'recording_started' not in st.session_state:
-        st.session_state.recording_started = False
-    
-    # Display a centered start button
-    start_button = st.button("Start Recording", on_click=start_recording_auto_stop, type="primary")
+    start_recording_audio()
 
 # Display chat history
 if "messages" not in st.session_state.keys():
@@ -92,10 +91,12 @@ if input_mode == "Text":
         with st.chat_message(name="user", avatar="👤"):
             st.markdown(prompt)
 else:
-    if st.session_state.get('text', ''):
-        st.session_state.messages.append({"role": "user", "content": st.session_state['text']})
+    audio_data = st.session_state.get('audio_data')
+    if audio_data:
+        text = speech_to_text(audio_data, temp_filename)
+        st.session_state.messages.append({"role": "user", "content": text})
         with st.chat_message(name="user", avatar="👤"):
-            st.markdown(st.session_state['text'])
+            st.markdown(text)
 
 # Generate a new response if the last message is not from the assistant
 if st.session_state.messages[-1]["role"] != "assistant":
